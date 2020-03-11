@@ -10,7 +10,7 @@ myprogram.o: myprogram.f90 mymodule.mod
 myprogram: mymodule.o myprogram.o # order matters, in this case we have a 2-cycle of recompilation if we touch mymodule.f90
 	@echo "=====linking $@ (newer: $?)"
 	gfortran -o myprogram myprogram.o mymodule.o
-.PHONY:clean all
+.PHONY:clean all test
 clean:
 	rm -f *.mod *.o myprogram
 
@@ -19,3 +19,4 @@ Makefile: ;
 
 %.f90 : ;
 
+include test.mk
