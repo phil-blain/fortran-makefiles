@@ -9,8 +9,8 @@ mymodule.mod:
 myprogram.o: myprogram.f90 mymodule.mod
 	@echo "=====compiling $@ (newer: $?)"
 	gfortran -c myprogram.f90
-myprogram: myprogram.o mymodule.o # Thomas exemple
-# myprogram: mymodule.o myprogram.o # order influences which rule is used for mymodule.f90 in the first compile
+# myprogram: myprogram.o mymodule.o # Thomas exemple
+myprogram: mymodule.o myprogram.o # order influences which rule is used for mymodule.f90 in the first compile
 	@echo "=====linking $@ (newer: $?)"
 	gfortran -o myprogram myprogram.o mymodule.o
 .PHONY:clean all
@@ -22,3 +22,4 @@ Makefile: ;
 
 %.f90 : ;
 
+include test.mk
