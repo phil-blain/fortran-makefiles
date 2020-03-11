@@ -1,0 +1,34 @@
+SRC = $(wildcard *.f90)
+OBJ = $(SRC:.f90=.o)
+
+all:myprogram
+
+# COMPILE
+%.o : %.F90
+	@echo "===== compiling $@ (newer: $?)"
+	gfortran -c $< 
+# 	@sleep 1
+
+# LINK
+myprogram: $(OBJ)
+	@echo "=====linking $@ (newer: $?)"
+	gfortran -o myprogram $^
+# 	@sleep 1
+
+.PHONY:clean all test
+
+clean:
+	rm -f *.mod *.o myprogram
+
+.SUFFIXES:
+Makefile: ;
+
+# %.f90 : 
+# %.F90 : 
+# %.mod : ;
+
+%.d : ;
+
+include test.mk
+
+include dependencies/*.d

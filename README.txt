@@ -90,7 +90,7 @@ remake
 -> recompile mymodule + relink
 => CYCLE (avev make 3.81)
 
-avec make 4.1
+avec make 4.2.1
 -> toujours recompile .mod+relink
 (donc ce "bogue" a été réglé)
 -> parce que à chaque fois le module reste plus vieux que la source,
@@ -106,12 +106,33 @@ ce qui créé un nouvel objet et donc trigger la règle pour le link
 remake :
 ok (ne recompile pas )
 
-6. Exemple de Joost
+6. Exemple de Joost (pattern rule + fake mod rule)
 ->fonctionne correctement !! 
 -> la seule chose est que la "fake rule" est exécutée si on change l'implémentation, make et remake (donc on ne voit pas "nothing to do for 'all'"
 
+7. Pattern rule, no rule for *.mod
+~~ make 3.81 ~~
+
+changer impl:
+OK
+remake:
+OK
+
+changer interf:
+OK
+remake:
+OK
+
+changer interf, make myprogram.o:
+-> ne recompile pas myprogram.o 
+=> ERRONÉ
 
 
+~~ make 4.2.1, 4.2, 4.1, 4.0, 3.82 ~~
+-> ERREUR (il essaie de compiler myprogram.o alors que mymodule.mod n'existe pas encore !!, car il dit qu'il a remade mymodule.mod mais il n'a rien fait ?!)
+
+~~ make 4.3 ~~
+=> même comportement que make 3.81 (ouf!)
 
 
 Références:
