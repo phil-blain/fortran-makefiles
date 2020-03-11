@@ -2,8 +2,11 @@
 makefile=$(firstword $(MAKEFILE_LIST))
 
 test: 
+	@echo "******* TEST: reset mymodule.f90 and make clean *******"
+	@$(MAKE) -f $(makefile) clean
+	@git checkout -q mymodule.f90
+	@echo "" &
 	@echo "******* TEST: initial compile ******* "
-	$(MAKE) -f $(makefile) clean
 	$(MAKE) -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: change mymodule implementation *******"
@@ -32,6 +35,20 @@ test:
 	@echo "" && sleep 1
 	@echo "******* TEST: remake *******"
 	$(MAKE) -f $(makefile)
+	@echo "" && sleep 1
+	@echo "******* TEST: change mymodule interface, make myprogram.o ******* "
+	@git checkout -q mymodule.f90
+	@git apply interface.patch
+	$(MAKE) -f $(makefile) myprogram.o
+	@echo "" && sleep 1
+	@echo "******* TEST: remake *******"
+	$(MAKE) -f $(makefile) myprogram.o
+	@echo "" && sleep 1
+	@echo "******* TEST: remake *******"
+	$(MAKE) -f $(makefile) myprogram.o
+	@echo "" && sleep 1
+	@echo "******* TEST: remake *******"
+	$(MAKE) -f $(makefile) myprogram.o
 	@echo "" && sleep 1
 	@echo "******* TEST: reset mymodule.f90 and make clean *******"
 	@$(MAKE) -f $(makefile) clean
