@@ -4,6 +4,7 @@ A. génération automatique des dépendances
 B. Utiliser les fonctionnalités de génération des dépendances du compilateur si possible
 C. Si on change l'implémentation d'une fonction /subrotuine dans un module, ne recompiler que ce module et relinker.
 D. 2 pass compile
+E. fonctionne en parallèle
 
 A. idéalement le compilateur a une foncitonnalité pour faire que ça, et ça fonctionne from scratch. avec gfortran ce n'est pas le cas, il lui faut les .mod.
 C'est possible d'utiiser la fait que make se restart pour créer tous les fichiers de dépendances jusqu'au feuilles de l'arbre, mais irréaliste pour un gros programme.
@@ -127,13 +128,23 @@ changer interf, make myprogram.o:
 -> ne recompile pas myprogram.o 
 => ERRONÉ
 
-
 ~~ make 4.2.1, 4.2, 4.1, 4.0, 3.82 ~~
--> ERREUR (il essaie de compiler myprogram.o alors que mymodule.mod n'existe pas encore !!, car il dit qu'il a remade mymodule.mod mais il n'a rien fait ?!)
+
+-> ERREUR ( à la compilation initiale il essaie de compiler myprogram.o alors que mymodule.mod n'existe pas encore !!, car il dit qu'il a remade mymodule.mod mais il n'a rien fait ?!)
+-> car il n'y a pas de règle pour les .mod
 
 ~~ make 4.3 ~~
 => même comportement que make 3.81 (ouf!)
 
+->mais from scratch, "make myprogram.o" a la même ERREUR
+
+=> même ERREUR en parallèle (from sractch)
+
+-> INNACEPTABLE
+=> il cherche une règle pour les .mod, n'en trouve pas et donc il pense qu'il a updaté le target, et donc il continue avec la compilation de myprogram.o
+
+
+8. 2 stages
 
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
@@ -141,3 +152,4 @@ https://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make
 https://www.gnu.org/software/automake/manual/html_node/Multiple-Outputs.html
 https://www.gnu.org/software/make/manual/html_node/Pattern-Intro.html#Pattern-Intro (last par)
 https://www.gnu.org/software/make/manual/html_node/Multiple-Targets.html#Multiple-Targets (grouped targets new with make 4.3)
+http://lagrange.mechse.illinois.edu/f90_mod_deps/ (même solution que Joost)
