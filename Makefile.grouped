@@ -1,0 +1,18 @@
+all:myprogram
+
+mymodule.o mymodule.mod &: mymodule.f90
+	@echo "=====compiling $@ (newer: $?)"
+	gfortran -c mymodule.f90
+myprogram.o: myprogram.f90 mymodule.mod
+		@echo "=====compiling $@ (newer: $?)"
+		gfortran -c myprogram.f90
+myprogram: myprogram.o mymodule.o
+		@echo "=====linking $@ (newer: $?)"
+		gfortran -o myprogram myprogram.o mymodule.o
+.PHONY:clean all
+clean:
+	rm -f *.mod *.o myprogram
+
+.SUFFIXES:
+Makefile:
+

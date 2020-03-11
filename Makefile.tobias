@@ -1,0 +1,24 @@
+all:myprogram
+
+mymodule.o: mymodule.f90
+	@echo "=====compiling $@ (newer: $?)"
+	gfortran -c mymodule.f90
+mymodule.mod: 
+	@echo "=====compiling (module rule) $@ (no dep)"
+	gfortran -c mymodule.f90
+myprogram.o: myprogram.f90 mymodule.mod
+	@echo "=====compiling $@ (newer: $?)"
+	gfortran -c myprogram.f90
+myprogram: myprogram.o mymodule.o # Thomas exemple
+# myprogram: mymodule.o myprogram.o # order influences which rule is used for mymodule.f90 in the first compile
+	@echo "=====linking $@ (newer: $?)"
+	gfortran -o myprogram myprogram.o mymodule.o
+.PHONY:clean all
+clean:
+	rm -f *.mod *.o myprogram
+
+.SUFFIXES:
+Makefile: ;
+
+%.f90 : ;
+
