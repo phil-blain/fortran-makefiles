@@ -1,0 +1,13 @@
+diff --git a/mymodule.f90 b/mymodule.f90
+index 62acde2..9e081dc 100644
+--- a/mymodule.f90
++++ b/mymodule.f90
+@@ -2,7 +2,7 @@ module mymodule
+ integer avar
+ contains
+ subroutine bonjour
+-print *, 'allo'
++print *, 'bonjour'
+ end subroutine bonjour
+ 
+ end module mymodule
