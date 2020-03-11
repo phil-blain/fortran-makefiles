@@ -1,3 +1,21 @@
+
+Il y a plusieurs choses qu'on veut faire:
+A. génération automatique des dépendances
+B. Utiliser les fonctionnalités de génération des dépendances du compilateur si possible
+C. Si on change l'implémentation d'une fonction /subrotuine dans un module, ne recompiler que ce module et relinker.
+D. 2 pass compile
+
+A. idéalement le compilateur a une foncitonnalité pour faire que ça, et ça fonctionne from scratch. avec gfortran ce n'est pas le cas, il lui faut les .mod.
+C'est possible d'utiiser la fait que make se restart pour créer tous les fichiers de dépendances jusqu'au feuilles de l'arbre, mais irréaliste pour un gros programme.
+Donc dans ce cas il faut un outil séparé pour le faire (ex. makdep de CICE, makedepf08, makedepf90..)
+
+B. une fois qu'on a généré les dépendances une première fois, il serait bien d'utiliser les fonctionnalités du compilateur par la suite afin d'éviter de toujorus invoquer un outil séparé (c'est à cause de ça que j'avais choisi l'implémentation avec les .di (initial dependencies) et les .d (générées en même temps que la compilation)
+
+C. -> il faut que le compilateur de modifie pas le timestamp du .mod si l'interface ne change pas. (gfortran agit comme ça)
+
+
+
+--- PISTES DE SOLUTIONS POUR A. ---
 1. Exemple de Thomas
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
 voir /Users/Philippe/Code/ftn-autodep/thomas-test
@@ -91,3 +109,14 @@ ok (ne recompile pas )
 6. Exemple de Joost
 ->fonctionne correctement !! 
 -> la seule chose est que la "fake rule" est exécutée si on change l'implémentation, make et remake (donc on ne voit pas "nothing to do for 'all'"
+
+
+
+
+
+Références:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
+https://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make
+https://www.gnu.org/software/automake/manual/html_node/Multiple-Outputs.html
+https://www.gnu.org/software/make/manual/html_node/Pattern-Intro.html#Pattern-Intro (last par)
+https://www.gnu.org/software/make/manual/html_node/Multiple-Targets.html#Multiple-Targets (grouped targets new with make 4.3)
