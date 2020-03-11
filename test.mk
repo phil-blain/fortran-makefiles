@@ -3,7 +3,7 @@ makefile=$(firstword $(MAKEFILE_LIST))
 
 test: 
 	@echo "******* TEST: initial compile ******* "
-	$(MAKE) clean
+	$(MAKE) -f $(makefile) clean
 	$(MAKE) -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: change mymodule implementation *******"
@@ -34,5 +34,5 @@ test:
 	$(MAKE) -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: reset mymodule.f90 and make clean *******"
-	@$(MAKE) clean
+	@$(MAKE) -f $(makefile) clean
 	@git checkout -q mymodule.f90
