@@ -42,7 +42,7 @@ test:
 	@echo "" && sleep 1
 	@echo "******* TEST: change mymodule interface, make myprogram.o ******* "
 	@git checkout -q mymodule.f90
-	@git apply interface.patch
+	@git apply interface2.patch
 	$(MAKE) --no-print-directory -f $(makefile) myprogram.o
 	@echo "" && sleep 1
 	@echo "******* TEST: remake *******"
@@ -57,3 +57,4 @@ test:
 	@echo "******* TEST: reset mymodule.f90 and make clean *******"
 	@$(MAKE) --no-print-directory -f $(makefile) clean
 	@git checkout -q mymodule.f90
+
