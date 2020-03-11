@@ -1,6 +1,10 @@
 # get the name of the makefile that was invoked on the command line
 makefile=$(firstword $(MAKEFILE_LIST))
 
+$(makefile) : ;
+
+test.mk : ;
+
 test: 
 	@echo "******* TEST: reset mymodule.f90 and make clean *******"
 	@$(MAKE) --no-print-directory -f $(makefile) clean
