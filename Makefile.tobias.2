@@ -1,25 +1,28 @@
+FC := gfortran
+
+
 all:myprogram
 
 # COMPILE mymodule
 mymodule.o: mymodule.f90
 	@echo "=====compiling $@ (newer: $?)"
-	gfortran -c mymodule.f90
+	$(FC) -c mymodule.f90
 
 # COMPILE mymodule (mod rule)
 mymodule.mod: 
 	@echo "=====compiling (module rule) $@ (no dep)"
-	gfortran -c mymodule.f90
+	$(FC) -c mymodule.f90
 
 # COMPILE myprogram
 myprogram.o: myprogram.f90 mymodule.mod
 	@echo "=====compiling $@ (newer: $?)"
-	gfortran -c myprogram.f90
+	$(FC) -c myprogram.f90
 
 # LINK
 myprogram: myprogram.o mymodule.o # order from Thomas exemple
 # myprogram: mymodule.o myprogram.o # order influences which rule is used for mymodule.f90 in the first compile
 	@echo "=====linking $@ (newer: $?)"
-	gfortran -o myprogram myprogram.o mymodule.o
+	$(FC) -o myprogram myprogram.o mymodule.o
  
 .PHONY:clean all
 
