@@ -1,0 +1,44 @@
+FC := gfortran
+
+VPATH=../
+override ROOT:=$(VPATH)
+
+SRC = $(wildcard $(addsuffix *.f90 , $(VPATH)))
+OBJ  := $(addsuffix .o, $(sort $(basename $(notdir $(SRC)))))
+
+all:myprogram
+
+# COMPILE
+%.o : %.f90 %.mod
+	@echo "===== compiling $@ (newer: $?)"
+	$(FC) -c $< 
+# 	@sleep 1
+
+# MODULES
+%.mod : %.f90
+	@echo "===== generating module $@ (newer: $?)"
+	$(FC) -fsyntax-only -c $< 
+	@test -f $@ || touch $@
+	
+# LINK
+myprogram: $(OBJ)
+	@echo "=====linking $@ (newer: $?)"
+	$(FC) -o myprogram $^
+# 	@sleep 1
+
+.PHONY:clean all test initial
+
+clean:
+	rm -f *.mod *.o myprogram
+
+.SUFFIXES:
+
+%.f90 : 
+%.F90 : ;
+
+
+%.dmod : ;
+
+include ../test.mk
+
+include ../dependencies/*.dmod

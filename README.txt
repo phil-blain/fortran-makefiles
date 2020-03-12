@@ -151,6 +151,36 @@ changer interf, make myprogram.o:
 
 8. 2 stages
 
+-> il faut changer les dépendances pour les fichiers qui ne sont pas des modules, sinon en parallèle ça ne fonctionne pas car la passe 1 n'a pas d'informations sur les 
+dépendances
+ex. dépendance de myprogram.d générée par gfortran:
+==> myprogram.d <==
+myprogram.o: myprogram.F90 mymodule.mod
+
+==> myprogram.dmod <==
+myprogram.o myprogram.mod: myprogram.F90 mymodule.mod
+
+-> on rajoute myprogram.mod comme target
+
+
+-- Règle des modules --
+si on met  `touch $@`, on perd l'avantage que gfortran ne touche pas le module si seulement l'implémentation change.
+
+si on met `test -f $@ || touch $@`, ça fait en sorte que si on change l'implémentation + remake il va toujours triggeré la règle pour myprogram.mod (car le .mod reste plus vieux que le .F90) (même comportement que Makefile.joost)
+
+par contre si on change l'interface, ça fait en sorte que il va regénérer le "module" pour myprogram (inneficace), et ensuite si on remake il va toujours regénérer myprogram.mod car mymodule.mod est newer, mais comme myprogram.mod existe déjà , le test -f fait en sorte qu'il n'est pas touché
+
+si on ne met pas de touch, la règle pour créer myprogram.mod est toujours trigerrée, puis la règle pour compiler myprogram.o puisque make pense que il a regénéré le .mod
+
+NOTE:
+si le source tree est séparé d'une façon que les modules/submodules sont différentiables des autres fichiers sources (ex. programmes, sous-routines, etc) alors il pourrait être intéressant de faire une règle différente pour les programmes/sous-routines, ou on fait seulement "touch $*.mod" et non syntax-only (pour plus d'efficacité)
+
+=> le 2pass build ne semble pas si avantageux pour les build incrémentaux
+=> donc il faudrait des dépendances différentes en fonction du type de build, et être capable de les choisir dynamiquement...
+=> le plus simple semble que l'outil puisse crééer les deux dans des fichiers séparés (ex .d et .d2p ou similaire)
+
+NOTE: Le truc utilisé par Busby (créé un symlink pour retrouver la source dns l'étape de compilation) n'est pas nécessaire, il suffit d'écrire la pattern rule pour la compilation avec le fichier source comme premier prerequisite, et ça fonctionne avec ou sans VPATH.
+
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
 https://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make

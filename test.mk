@@ -5,16 +5,19 @@ $(makefile) : ;
 
 test.mk : ;
 
+# support VPATH builds
+ROOT:=.
+
 test: 
 	@echo "******* TEST: reset mymodule.f90 and make clean *******"
 	@$(MAKE) --no-print-directory -f $(makefile) clean
-	@git checkout -q mymodule.f90
+	@git checkout -q :/mymodule.f90
 	@echo "" &
 	@echo "******* TEST: initial compile ******* "
 	$(MAKE) --no-print-directory -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: change mymodule implementation *******"
-	@git apply impl.patch
+	git -C $(ROOT) apply impl.patch
 	$(MAKE) --no-print-directory -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: remake *******"
@@ -27,8 +30,8 @@ test:
 	$(MAKE) --no-print-directory -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: change mymodule interface ******* "
-	@git checkout -q mymodule.f90
-	@git apply interface.patch
+	@git checkout -q :/mymodule.f90
+	@git -C $(ROOT) apply interface.patch
 	$(MAKE) --no-print-directory -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: remake *******"
@@ -41,8 +44,8 @@ test:
 	$(MAKE) --no-print-directory -f $(makefile)
 	@echo "" && sleep 1
 	@echo "******* TEST: change mymodule interface, make myprogram.o ******* "
-	@git checkout -q mymodule.f90
-	@git apply interface2.patch
+	@git checkout -q :/mymodule.f90
+	@git -C $(ROOT) apply interface2.patch
 	$(MAKE) --no-print-directory -f $(makefile) myprogram.o
 	@echo "" && sleep 1
 	@echo "******* TEST: remake *******"
@@ -56,5 +59,5 @@ test:
 	@echo "" && sleep 1
 	@echo "******* TEST: reset mymodule.f90 and make clean *******"
 	@$(MAKE) --no-print-directory -f $(makefile) clean
-	@git checkout -q mymodule.f90
+	@git checkout -q :/mymodule.f90
 
