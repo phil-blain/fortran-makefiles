@@ -2,9 +2,10 @@
 Il y a plusieurs choses qu'on veut faire:
 A. génération automatique des dépendances
 B. Utiliser les fonctionnalités de génération des dépendances du compilateur si possible
-C. Si on change l'implémentation d'une fonction /subrotuine dans un module, ne recompiler que ce module et relinker.
+C. Si on change l'implémentation d'une fonction /subroutine dans un module, ne recompiler que ce module et relinker.
 D. 2 pass compile
 E. fonctionne en parallèle
+F. out-of-tree build
 
 A. idéalement le compilateur a une foncitonnalité pour faire que ça, et ça fonctionne from scratch. avec gfortran ce n'est pas le cas, il lui faut les .mod.
 C'est possible d'utiiser la fait que make se restart pour créer tous les fichiers de dépendances jusqu'au feuilles de l'arbre, mais irréaliste pour un gros programme.
@@ -106,6 +107,10 @@ ce qui créé un nouvel objet et donc trigger la règle pour le link
 
 remake :
 ok (ne recompile pas )
+
+5.5 NOTE: ajouter "touch $@" à la fin de la règle de compilation fait en sorte que on perd l'avantage du fait que le module ne change pas, donc myprogram est recompilé. cela brise aussi le cycle (mais il faut 2 make pour obtenir "nothing to be done")
+voir Makefile.pattern_grouped_touch
+
 
 6. Exemple de Joost (pattern rule + fake mod rule)
 ->fonctionne correctement !! 
