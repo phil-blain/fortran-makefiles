@@ -7,13 +7,13 @@ OBJ = $(SRC:.f90=.o)
 all:myprogram
 
 # COMPILE
-%.o : %.F90 %.mod
+%.o : %.f90 %.mod
 	@echo "===== compiling $@ (newer: $?)"
 	$(FC) -c $< 
 # 	@sleep 1
 
 # MODULES
-%.mod : %.F90
+%.mod : %.f90
 	@echo "===== generating module $@ (newer: $?)"
 	$(FC) -fsyntax-only -c $< 
 # 	@test -f $@ || touch $@
