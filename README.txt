@@ -7,17 +7,19 @@ D. 2 pass compile
 E. fonctionne en parallèle
 F. out-of-tree build
 
-A. idéalement le compilateur a une foncitonnalité pour faire que ça, et ça fonctionne from scratch. avec gfortran ce n'est pas le cas, il lui faut les .mod.
+A. idéalement le compilateur a une foncitonnalité pour faire que ça, et ça fonctionne from scratch. avec gfortran/ifort ce n'est pas le cas, il lui faut les .mod.
 C'est possible d'utiiser la fait que make se restart pour créer tous les fichiers de dépendances jusqu'au feuilles de l'arbre, mais irréaliste pour un gros programme.
 Donc dans ce cas il faut un outil séparé pour le faire (ex. makdep de CICE, makedepf08, makedepf90..)
 
 B. une fois qu'on a généré les dépendances une première fois, il serait bien d'utiliser les fonctionnalités du compilateur par la suite afin d'éviter de toujorus invoquer un outil séparé (c'est à cause de ça que j'avais choisi l'implémentation avec les .di (initial dependencies) et les .d (générées en même temps que la compilation)
+par contre si on veut que le makefile soit général, ça peut être plus compliqué
 
 C. -> il faut que le compilateur de modifie pas le timestamp du .mod si l'interface ne change pas. (gfortran agit comme ça)
+(ou -> utiliser des submodules)
 
 
 
---- PISTES DE SOLUTIONS POUR A. ---
+--- PISTES DE SOLUTIONS POUR C. ---
 1. Exemple de Thomas
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
 voir /Users/Philippe/Code/ftn-autodep/thomas-test
@@ -114,7 +116,8 @@ voir Makefile.pattern_grouped_touch
 
 6. Exemple de Joost (pattern rule + fake mod rule)
 ->fonctionne correctement !! 
--> la seule chose est que la "fake rule" est exécutée si on change l'implémentation, make et remake (donc on ne voit pas "nothing to do for 'all'"
+-> la seule chose est que la "fake rule" est exécutée si on change l'implémentation, make et remake (donc on ne voit pas "nothing to do for 'all'")
+-> si on a un compilateur moins intelligent qui modifie toujours le timestamp du .mod, le build est aussi correct mais il va re compiler myprogram.o même si l'interface seulement a changé (même comportement que avec les dépendances sur les .o) => testé en ajoutant touch $*.mod à la fin de la règle de compilation
 
 7. Pattern rule, no rule for *.mod
 ~~ make 3.81 ~~
@@ -180,6 +183,7 @@ si le source tree est séparé d'une façon que les modules/submodules sont diff
 => le plus simple semble que l'outil puisse crééer les deux dans des fichiers séparés (ex .d et .d2p ou similaire)
 
 NOTE: Le truc utilisé par Busby (créé un symlink pour retrouver la source dns l'étape de compilation) n'est pas nécessaire, il suffit d'écrire la pattern rule pour la compilation avec le fichier source comme premier prerequisite, et ça fonctionne avec ou sans VPATH.
+-> try mkdir build, cd build, make -f ../Makefile.2pass-vpath test
 
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495

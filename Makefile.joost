@@ -10,6 +10,7 @@ all:myprogram
 %.o : %.F90
 	@echo "===== compiling $@ (newer: $?)"
 	$(FC) -c $< 
+# 	touch $*.mod  # to simulate less intelligent compilers
 
 # MODULE (fake)
 %.mod : %.o
