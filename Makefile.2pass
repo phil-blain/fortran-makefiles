@@ -16,7 +16,7 @@ all:myprogram
 %.mod : %.f90
 	@echo "===== generating module $@ (newer: $?)"
 	$(FC) -fsyntax-only -c $< 
-# 	@test -f $@ || touch $@
+	@test -f $@ || touch $@
 	
 # LINK
 myprogram: $(OBJ)
