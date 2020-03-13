@@ -118,6 +118,9 @@ voir Makefile.pattern_grouped_touch
 ->fonctionne correctement !! 
 -> la seule chose est que la "fake rule" est exécutée si on change l'implémentation, make et remake (donc on ne voit pas "nothing to do for 'all'")
 -> si on a un compilateur moins intelligent qui modifie toujours le timestamp du .mod, le build est aussi correct mais il va re compiler myprogram.o même si l'interface seulement a changé (même comportement que avec les dépendances sur les .o) => testé en ajoutant touch $*.mod à la fin de la règle de compilation
+-> NOTE: Comme indiqué par Matthew West, si on delete le .mod et qu'on recompile, le compilateur va dire qu'il ne trouve pas le module, et make va errorer. 
+on peut contrer cettte situation dans la règle pour le .mod en vérifiant si le .mod existe (il devrait toujours exister puisqu'il a été généré auparavant par la règle de compilation), puis si n'existe pas en supprimant le .o et réexutant make :D
+test -f $@ || rm $< && $(MAKE) --no-print-directory -f $(makefile) $<
 
 7. Pattern rule, no rule for *.mod
 ~~ make 3.81 ~~
