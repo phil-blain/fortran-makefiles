@@ -1,0 +1,2 @@
+myprogram.o myprogram.mod: myprogram.f90 mymodule.mod
+myprogram.o:myprogram.mod

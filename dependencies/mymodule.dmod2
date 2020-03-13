@@ -1,0 +1,2 @@
+mymodule.o mymodule.mod: mymodule.f90
+mymodule.o: mymodule.mod

@@ -169,7 +169,7 @@ myprogram.o myprogram.mod: myprogram.F90 mymodule.mod
 -- Règle des modules --
 si on met  `touch $@`, on perd l'avantage que gfortran ne touche pas le module si seulement l'implémentation change.
 
-si on met `test -f $@ || touch $@`, ça fait en sorte que si on change l'implémentation + remake il va toujours triggeré la règle pour myprogram.mod (car le .mod reste plus vieux que le .F90) (même comportement que Makefile.joost)
+si on met `test -f $@ || touch $@`, ça fait en sorte que si on change l'implémentation + remake il va toujours triggeré la règle pour mymodule.mod (car le .mod reste plus vieux que le .F90) (même comportement que Makefile.joost)
 
 par contre si on change l'interface, ça fait en sorte que il va regénérer le "module" pour myprogram (inneficace), et ensuite si on remake il va toujours regénérer myprogram.mod car mymodule.mod est newer, mais comme myprogram.mod existe déjà , le test -f fait en sorte qu'il n'est pas touché
 
@@ -185,6 +185,10 @@ si le source tree est séparé d'une façon que les modules/submodules sont diff
 NOTE: Le truc utilisé par Busby (créé un symlink pour retrouver la source dns l'étape de compilation) n'est pas nécessaire, il suffit d'écrire la pattern rule pour la compilation avec le fichier source comme premier prerequisite, et ça fonctionne avec ou sans VPATH.
 -> try mkdir build, cd build, make -f ../Makefile.2pass-vpath test
 
+NOTE: la régle de compilation %.o : %.f90 %.mod
+peut être simplement %.o : %.f90 (comme dans c2pk) si les dépendances comprennent un règle %.o : %.mod pour chaque fichier source (voir dependencies/*.dmod2)
+-> permet de ne pas avoir à changer la régle de compilation en fonction de si on fait un 2-pass build ou non
+
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
 https://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make
@@ -192,3 +196,4 @@ https://www.gnu.org/software/automake/manual/html_node/Multiple-Outputs.html
 https://www.gnu.org/software/make/manual/html_node/Pattern-Intro.html#Pattern-Intro (last par)
 https://www.gnu.org/software/make/manual/html_node/Multiple-Targets.html#Multiple-Targets (grouped targets new with make 4.3)
 http://lagrange.mechse.illinois.edu/f90_mod_deps/ (même solution que Joost)
+https://github.com/cp2k/cp2k/blob/master/Makefile

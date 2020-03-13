@@ -8,6 +8,7 @@ all:myprogram
 
 # COMPILE
 %.o : %.f90 %.mod
+# %.o : %.f90 # à utiliser avec les dépendances *.dmod2
 	@echo "===== compiling $@ (newer: $?)"
 	$(FC) -c $< 
 # 	@sleep 1
@@ -40,3 +41,4 @@ clean:
 include test.mk
 
 include dependencies/*.dmod
+# include dependencies/*.dmod2
