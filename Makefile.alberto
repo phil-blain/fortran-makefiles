@@ -27,7 +27,7 @@ myprogram: $(OBJ)
 .PHONY:clean all test initial
 
 clean:
-	rm -f *.mod *.o myprogram
+	rm -f *.mod *.o myprogram *.anc
 
 .SUFFIXES:
 
