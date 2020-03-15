@@ -11,7 +11,7 @@ A. idéalement le compilateur a une foncitonnalité pour faire que ça, et ça f
 C'est possible d'utiiser la fait que make se restart pour créer tous les fichiers de dépendances jusqu'au feuilles de l'arbre, mais irréaliste pour un gros programme.
 Donc dans ce cas il faut un outil séparé pour le faire (ex. makdep de CICE, makedepf08, makedepf90..)
 
-B. une fois qu'on a généré les dépendances une première fois, il serait bien d'utiliser les fonctionnalités du compilateur par la suite afin d'éviter de toujorus invoquer un outil séparé (c'est à cause de ça que j'avais choisi l'implémentation avec les .di (initial dependencies) et les .d (générées en même temps que la compilation)
+B. une fois qu'on a généré les dépendances une première fois, il serait bien d'utiliser les fonctionnalités du compilateur par la suite afin d'éviter de toujours invoquer un outil séparé (c'est à cause de ça que j'avais choisi l'implémentation avec les .di (initial dependencies) et les .d (générées en même temps que la compilation)
 par contre si on veut que le makefile soit général, ça peut être plus compliqué
 
 C. -> il faut que le compilateur de modifie pas le timestamp du .mod si l'interface ne change pas. (gfortran agit comme ça)
@@ -203,7 +203,7 @@ mawk  -f makedepf08.awk *.f* */*.{f,F}*
 mawk: cannot open one/  include "one_addone.inc" (No such file or directory)
 -> on Mac, --traditional is not recognized and so the script simply exits (with success!) and does nothing
 -> on Mac, without --traditional it works correctly (though different order of dependencies)
--> on Mac, awk is nawk (BWK awk)
+-> on Mac, awk is nawk (BWK awk) ("one-true-awk" on GitHub)
 -- Makefile -- 
 -> as written, need to remove --traditional on mac
 -> find -regextype assumes GNU find (this is not essential since it is just used to create the list of source files.
@@ -220,7 +220,7 @@ it really is related to the case-insensitivity: try in terminal
 ls a.F90 a.f90, it returns both (!) even if there is only one file named a.F90
 
 
--> just as the 2 pass approach above, this approach causes recompilation of myprogram if only the implementation of mymodule is changed, because of the "touch $@" command
+-> just as the 2 pass approach above, this approach causes recompilation of myprogram if only the implementation of mymodule is changed, because of the "touch $@" command for the anchor files
 -> if I remove the touch command it seems to work but might not in parallel with bigger programs
 
 
