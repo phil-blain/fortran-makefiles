@@ -1,0 +1,79 @@
+SRC = $(wildcard *.f90)
+OBJ = $(SRC:.f90=.o)
+DEPS = $(SRC:.f90=.d)
+APP=application
+MUTE_ERRORS = 2> /dev/null
+ifndef VERBOSE
+MUTE = $(MUTE_ERRORS)
+endif
+MOD_NOT_FOUND_ERROR_STRING= Can't open module file
+
+
+INITIAL_DEP_GENERATED := $(shell find BEGINCOMPILE $(MUTE_ERRORS))
+ifndef MAKE_RESTARTS
+$(info Starting Make)
+else
+$(info Restarting Make ($(MAKE_RESTARTS)))
+endif
+
+ECHO=/bin/echo
+
+
+V=@
+ifdef VERBOSE
+V=
+endif
+
+# LINK
+all: $(APP)
+$(APP): $(OBJ)
+	@echo "===== linking $@ (newer: $?)"
+	@touch $@
+
+# COMPILE
+%.o : %.F90  | BEGINCOMPILE
+	@echo "===== compiling $@ (newer: $?)"
+	@gfortran -c $< 
+
+# MODULES and SUBMODULES
+%.mod %.smod : %.o
+	@echo "===== faking module $@ (newer: $?)"
+	@test -f $@ || { rm $< && $(MAKE) --no-print-directory -f $(makefile) $<; }
+	@:
+
+# DEPENDENCIES
+$(DEPS) : %.d : %.F90
+	@ $(ECHO) -n "===== generating $@... "
+	$(V) gfortran -c $< -M -MF $@ -fsyntax-only 2> $*.error \
+	 || { grep "$(MOD_NOT_FOUND_ERROR_STRING)" $*.error &> /dev/null \
+	      || { echo "failed"; cat $*.error; rm $*.error; false; } \
+	      && { echo "failed"; rm $*.error; false; } \
+	    } \
+	 && rm $*.error
+	@echo "succeeded"
+
+
+# This rule will run once before compilation starts.
+BEGINCOMPILE: 
+	@echo "All ini deps generated successfully"
+	@touch $@
+	@rm -f *.mod
+
+ifneq ($(MAKECMDGOALS), clean)
+ifneq ($(MAKECMDGOALS), show)
+-include $(DEPS)
+endif
+endif
+
+.PHONY: clean show
+
+show:
+	@echo "SRC : $(SRC)"
+	@echo "OBJ : $(OBJ)"
+	@echo "DEPS : $(DEPS)"
+	
+include test.mk
+
+clean:
+	rm -rf *.mod *.o *.d *.di *.d-e $(APP) $(MODULEPATH) BEGINCOMPILE
+# DO NOT DELETE
