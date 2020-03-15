@@ -1,0 +1,45 @@
+FC := gfortran
+
+
+SRC = $(wildcard *.f90)
+OBJ = $(SRC:.f90=.o)
+
+all:myprogram
+
+# COMPILE
+%.o : %.f90 %.anc
+	@echo "===== compiling $@ (newer: $?)"
+	$(FC) -c $< 
+# 	@sleep 1
+
+# MODULES
+%.anc : %.f90
+	@echo "===== generating module $@ (newer: $?)"
+	$(FC) -fsyntax-only -c $< 
+	@touch $@
+	
+# LINK
+myprogram: $(OBJ)
+	@echo "=====linking $@ (newer: $?)"
+	$(FC) -o myprogram $^
+# 	@sleep 1
+
+.PHONY:clean all test initial
+
+clean:
+	rm -f *.mod *.o myprogram
+
+.SUFFIXES:
+
+%.f90 : 
+%.F90 : ;
+
+
+%.dmod : ;
+
+include test.mk
+
+-include deps.mk
+
+deps.mk:
+	awk -f makedepf08.awk $(SRC) | sort | uniq | sed -e 's|.mod/||' > $@

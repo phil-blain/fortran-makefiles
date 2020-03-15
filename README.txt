@@ -170,7 +170,7 @@ myprogram.o myprogram.mod: myprogram.F90 mymodule.mod
 
 
 -- Règle des modules --
-si on met  `touch $@`, on perd l'avantage que gfortran ne touche pas le module si seulement l'implémentation change.
+si on met  `touch $@`, on perd l'avantage que gfortran ne touche pas le module si seulement l'implémentation change. (donc recompilation de myprogram si on change l'interface ou l'implémentation de mymododule, mais remake est ok)
 
 si on met `test -f $@ || touch $@`, ça fait en sorte que si on change l'implémentation + remake il va toujours triggeré la règle pour mymodule.mod (car le .mod reste plus vieux que le .F90) (même comportement que Makefile.joost)
 
@@ -192,6 +192,38 @@ NOTE: la régle de compilation %.o : %.f90 %.mod
 peut être simplement %.o : %.f90 (comme dans c2pk) si les dépendances comprennent un règle %.o : %.mod pour chaque fichier source (voir dependencies/*.dmod2)
 -> permet de ne pas avoir à changer la régle de compilation en fonction de si on fait un 2-pass build ou non
 
+9. Alberto Otero de la Roza 's approach (2 stages + makedepf08 + anchor files)
+NOTES on Alberto Otero de la Roza's makedepf08 and Makefile
+-- makedepf08 --
+- as written, it needs a recent version of /usr/bin/env that understand -S (~2018 for GNU env)
+- as written, it needs GNU awk (because of the --traditional flag)
+-> if I remove --traditional and use the default system awk (mawk on ubuntu 17),
+it fails : 
+mawk  -f makedepf08.awk *.f* */*.{f,F}*
+mawk: cannot open one/  include "one_addone.inc" (No such file or directory)
+-> on Mac, --traditional is not recognized and so the script simply exits (with success!) and does nothing
+-> on Mac, without --traditional it works correctly (though different order of dependencies)
+-> on Mac, awk is nawk (BWK awk)
+-- Makefile -- 
+-> as written, need to remove --traditional on mac
+-> find -regextype assumes GNU find (this is not essential since it is just used to create the list of source files.
+-> for some reason make 3.82, 4.2.1, 4.2, 4.3 fail with 
+gfortran   -c -J .mod -o four.o four.f90 four.F90
+gfortran: fatal error: cannot specify -o with -c, -S or -E with multiple files
+this might be related to the filesystem case-insensitivity ?..
+-> if I rename all files to .F90 it still happens
+-> it comes from the source argument to the compile command:
+$(wildcard $(addprefix $*.,$(FORTEXT)))
+if I replace that with $< and add %.F90 to the prerequisiste it works.
+
+it really is related to the case-insensitivity: try in terminal
+ls a.F90 a.f90, it returns both (!) even if there is only one file named a.F90
+
+
+-> just as the 2 pass approach above, this approach causes recompilation of myprogram if only the implementation of mymodule is changed, because of the "touch $@" command
+-> if I remove the touch command it seems to work but might not in parallel with bigger programs
+
+
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
 https://www.cmcrossroads.com/article/rules-multiple-outputs-gnu-make
@@ -200,3 +232,4 @@ https://www.gnu.org/software/make/manual/html_node/Pattern-Intro.html#Pattern-In
 https://www.gnu.org/software/make/manual/html_node/Multiple-Targets.html#Multiple-Targets (grouped targets new with make 4.3)
 http://lagrange.mechse.illinois.edu/f90_mod_deps/ (même solution que Joost)
 https://github.com/cp2k/cp2k/blob/master/Makefile
+https://aoterodelaroza.github.io/devnotes/modern-fortran-makefiles/
