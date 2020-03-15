@@ -1,0 +1,57 @@
+FC := gfortran
+
+
+SRC = $(wildcard *.f90)
+OBJ = $(SRC:.f90=.o)
+
+SRC_MODULES=mymodule.f90 module2.f90
+OBJ_MODULES=$(SRC_MODULES:.f90=.o)
+MOD_MODULES=$(SRC_MODULES:.f90=.mod)
+
+SRC_NON_MODULES=myprogram.f90
+OBJ_NON_MODULES=$(SRC_NON_MODULES:.f90=.o)
+
+$(info $(OBJ_NON_MODULES))
+$(info $(OBJ_MODULES))
+
+all:myprogram
+
+# COMPILE (MODULES)
+$(OBJ_MODULES) : %.o : %.f90 %.mod
+	@echo "===== compiling $@ (newer: $?)"
+	$(FC) -c $< 
+# 	@sleep 1
+
+# COMPILE (NON-MODULES)
+$(OBJ_NON_MODULES) : %.o : %.f90
+	@echo "===== compiling $@ (newer: $?)"
+	$(FC) -c $< 
+# 	@sleep 1
+
+# MODULES
+$(MOD_MODULES) : %.mod : %.f90
+	@echo "===== generating module $@ (newer: $?)"
+	$(FC) -fsyntax-only -c $<
+	
+# LINK
+myprogram: $(OBJ)
+	@echo "=====linking $@ (newer: $?)"
+	$(FC) -o myprogram $^
+# 	@sleep 1
+
+.PHONY:clean all test initial
+
+clean:
+	rm -f *.mod *.o myprogram
+
+.SUFFIXES:
+
+%.f90 : 
+%.F90 : ;
+
+
+%.dmod : ;
+
+include test.mk
+
+include dependencies/*.d

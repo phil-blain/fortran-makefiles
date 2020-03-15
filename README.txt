@@ -168,6 +168,18 @@ myprogram.o myprogram.mod: myprogram.F90 mymodule.mod
 
 -> on rajoute myprogram.mod comme target
 
+NOTE:-> ceci s'applique si on n'a pas de façon a priori de déterminer quels fichiers sont des modules et quels n'en sont pas. si c'est possible de le faire, alors la règle pour les non-modules doit être 
+%.o : %.f90
+plutôt que 
+%.o : %.f90 %.mod
+
+et la règle pour les modules 
+%.mod : %.f90
+ne doit s'appliquer que pour les fichiers source qui sont des modules
+-> exemple dans Makefile.busby
+-> dans ce cas on n'a pas besoin du "test -f && touch"
+NOTE2: in Busby the dependency for prog are on the *object* files of the modules aa and bb, and there is no dependency on the modules
+
 
 -- Règle des modules --
 si on met  `touch $@`, on perd l'avantage que gfortran ne touche pas le module si seulement l'implémentation change. (donc recompilation de myprogram si on change l'interface ou l'implémentation de mymododule, mais remake est ok)
@@ -179,13 +191,13 @@ par contre si on change l'interface, ça fait en sorte que il va regénérer le 
 si on ne met pas de touch, la règle pour créer myprogram.mod est toujours trigerrée, puis la règle pour compiler myprogram.o puisque make pense que il a regénéré le .mod
 
 NOTE:
-si le source tree est séparé d'une façon que les modules/submodules sont différentiables des autres fichiers sources (ex. programmes, sous-routines, etc) alors il pourrait être intéressant de faire une règle différente pour les programmes/sous-routines, ou on fait seulement "touch $*.mod" et non syntax-only (pour plus d'efficacité)
+si le source tree est séparé d'une façon que les modules/submodules sont différentiables des autres fichiers sources (ex. programmes, sous-routines, etc) alors il pourrait être intéressant de faire une règle différente pour les programmes/sous-routines, ou on fait seulement "touch $*.mod" et non syntax-only (pour plus d'efficacité) (voir ci-dessus)
 
 => le 2pass build ne semble pas si avantageux pour les build incrémentaux
 => donc il faudrait des dépendances différentes en fonction du type de build, et être capable de les choisir dynamiquement...
 => le plus simple semble que l'outil puisse crééer les deux dans des fichiers séparés (ex .d et .d2p ou similaire)
 
-NOTE: Le truc utilisé par Busby (créé un symlink pour retrouver la source dns l'étape de compilation) n'est pas nécessaire, il suffit d'écrire la pattern rule pour la compilation avec le fichier source comme premier prerequisite, et ça fonctionne avec ou sans VPATH.
+NOTE: Le truc utilisé par Busby (créé un symlink pour retrouver la source dans l'étape de compilation) n'est pas nécessaire, il suffit d'écrire la pattern rule pour la compilation avec le fichier source comme premier prerequisite, et ça fonctionne avec ou sans VPATH.
 -> try mkdir build, cd build, make -f ../Makefile.2pass-vpath test
 
 NOTE: la régle de compilation %.o : %.f90 %.mod
