@@ -242,11 +242,16 @@ ls a.F90 a.f90, it returns both (!) even if there is only one file named a.F90
 note : this approach (using the compiler to generate the dependencies) is not very robust:
 - we would want BEGINCOMPILE to depend on $(DEPS) to prevent starting the compilation before all dep files are generated.
 however this results in a lot of unnecessary recompilation (if we do remove the modules in the BEGINCOMPILE rule, in order to simulate a dependency generator that does not write the .mod as a side effect)
--> an alternative 
 - if we do not add $(DEPS) as a prereq of BEGINCOMPILE then it is possible for the dependency generation rule to fail (ex. real syntax error), then the compilation starts and we get the same error twice (in the best case)
 - adding .smod in the fake rule results in a circular dependency between .o and .smod (this seems to be a Gfortran bug, since it only happens in Alberto's example_final with submodule and module two in the same file
 
 - however the fake rule with submodules and modules seems to work correctly
+(this would need to be checked more thoroughly - especially regarding when changes are made to the module/submodules interfaces 
+and recompilation)
+
+
+ROADMAP: modifier makedepf08 to (optionnally?) handle direct dependencies on the .mod and .smod instead of the anchor files.
+this would mean we don't need to use the compiler to generate the dependencies
 
 
 Références:
