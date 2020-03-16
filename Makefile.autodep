@@ -7,6 +7,7 @@ ifndef VERBOSE
 MUTE = $(MUTE_ERRORS)
 endif
 MOD_NOT_FOUND_ERROR_STRING= Can't open module file
+# Note: the above must be adapted for submodules
 
 
 INITIAL_DEP_GENERATED := $(shell find BEGINCOMPILE $(MUTE_ERRORS))
@@ -42,6 +43,7 @@ $(APP): $(OBJ)
 	@:
 
 # DEPENDENCIES
+# NOTE: this rule makes sure that errors other than "module not found" are shown
 $(DEPS) : %.d : %.F90
 	@ $(ECHO) -n "===== generating $@... "
 	$(V) gfortran -c $< -M -MF $@ -fsyntax-only 2> $*.error \
@@ -54,10 +56,12 @@ $(DEPS) : %.d : %.F90
 
 
 # This rule will run once before compilation starts.
-BEGINCOMPILE: 
+# NOTE: do not add a dependency on $(DEPS), since this will cause a lot of recompilation :
+# because the modules get deleted each time a .d changes (thus each time a source file is modified)
+BEGINCOMPILE:
 	@echo "All ini deps generated successfully"
 	@touch $@
-	@rm -f *.mod
+	@rm -f *.mod # to simulate a dependency generator that does not write the modules as a side effect
 
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), show)
