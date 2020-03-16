@@ -246,6 +246,8 @@ however this results in a lot of unnecessary recompilation (if we do remove the 
 - if we do not add $(DEPS) as a prereq of BEGINCOMPILE then it is possible for the dependency generation rule to fail (ex. real syntax error), then the compilation starts and we get the same error twice (in the best case)
 - adding .smod in the fake rule results in a circular dependency between .o and .smod (this seems to be a Gfortran bug, since it only happens in Alberto's example_final with submodule and module two in the same file
 
+- however the fake rule with submodules and modules seems to work correctly
+
 
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495

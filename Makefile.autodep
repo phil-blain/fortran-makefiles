@@ -34,12 +34,12 @@ $(APP): $(OBJ)
 	@$(FC) -o $(APP) $^
 
 # COMPILE
-%.o : %.F90  | BEGINCOMPILE
+%.o : %.F90 | BEGINCOMPILE
 	@echo "===== compiling $@ (newer: $?)"
 	@$(FC) -c $< 
 
 # MODULES and SUBMODULES
-%.mod : %.o
+%.mod %.smod : %.o
 	@echo "===== faking module $@ (newer: $?)"
 	@test -f $@ || { rm $< && $(MAKE) --no-print-directory -f $(makefile) $<; }
 	@:
