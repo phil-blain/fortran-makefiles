@@ -235,6 +235,8 @@ ls a.F90 a.f90, it returns both (!) even if there is only one file named a.F90
 -> just as the 2 pass approach above, this approach causes recompilation of myprogram if only the implementation of mymodule is changed, because of the "touch $@" command for the anchor files
 -> if I remove the touch command it seems to work but might not in parallel with bigger programs
 
+-> this seems to be the only approach that works for several modules in the same file
+
 
 Références:
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47495
