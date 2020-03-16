@@ -37,7 +37,7 @@ $(APP): $(OBJ)
 	@gfortran -c $< 
 
 # MODULES and SUBMODULES
-%.mod %.smod : %.o
+%.mod : %.o
 	@echo "===== faking module $@ (newer: $?)"
 	@test -f $@ || { rm $< && $(MAKE) --no-print-directory -f $(makefile) $<; }
 	@:
