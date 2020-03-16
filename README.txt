@@ -12,7 +12,7 @@ C'est possible d'utiiser la fait que make se restart pour créer tous les fichie
 Donc dans ce cas il faut un outil séparé pour le faire (ex. makdep de CICE, makedepf08, makedepf90..)
 
 B. une fois qu'on a généré les dépendances une première fois, il serait bien d'utiliser les fonctionnalités du compilateur par la suite afin d'éviter de toujours invoquer un outil séparé (c'est à cause de ça que j'avais choisi l'implémentation avec les .di (initial dependencies) et les .d (générées en même temps que la compilation)
-par contre si on veut que le makefile soit général, ça peut être plus compliqué
+par contre si on veut que le makefile soit général, ça peut être plus compliqué (étant donné les sémantiques différentes entre compilateurs par rapport aux modules et submodules)
 
 C. -> il faut que le compilateur de modifie pas le timestamp du .mod si l'interface ne change pas. (gfortran agit comme ça)
 (ou -> utiliser des submodules)
@@ -230,12 +230,21 @@ if I replace that with $< and add %.F90 to the prerequisiste it works.
 
 it really is related to the case-insensitivity: try in terminal
 ls a.F90 a.f90, it returns both (!) even if there is only one file named a.F90
+-> defining the compile rule as a macro (and adding the source as a prereq) works
 
 
 -> just as the 2 pass approach above, this approach causes recompilation of myprogram if only the implementation of mymodule is changed, because of the "touch $@" command for the anchor files
 -> if I remove the touch command it seems to work but might not in parallel with bigger programs
 
 -> this seems to be the only approach that works for several modules in the same file
+
+10. automatic dependency, without 2-pass (Makefile.autodep)
+note : this approach (using the compiler to generate the dependencies) is not very robust:
+- we would want BEGINCOMPILE to depend on $(DEPS) to prevent starting the compilation before all dep files are generated.
+however this results in a lot of unnecessary recompilation (if we do remove the modules in the BEGINCOMPILE rule, in order to simulate a dependency generator that does not write the .mod as a side effect)
+-> an alternative 
+- if we do not add $(DEPS) as a prereq of BEGINCOMPILE then it is possible for the dependency generation rule to fail (ex. real syntax error), then the compilation starts and we get the same error twice (in the best case)
+- adding .smod in the fake rule results in a circular dependency between .o and .smod (this seems to be a Gfortran bug, since it only happens in Alberto's example_final with submodule and module two in the same file
 
 
 Références:

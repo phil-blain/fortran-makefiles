@@ -1,7 +1,9 @@
+FC=gfortran
+
 SRC = $(wildcard *.f90)
 OBJ = $(SRC:.f90=.o)
 DEPS = $(SRC:.f90=.d)
-APP=application
+APP=myprogram
 MUTE_ERRORS = 2> /dev/null
 ifndef VERBOSE
 MUTE = $(MUTE_ERRORS)
@@ -29,12 +31,12 @@ endif
 all: $(APP)
 $(APP): $(OBJ)
 	@echo "===== linking $@ (newer: $?)"
-	@touch $@
+	@$(FC) -o $(APP) $^
 
 # COMPILE
 %.o : %.F90  | BEGINCOMPILE
 	@echo "===== compiling $@ (newer: $?)"
-	@gfortran -c $< 
+	@$(FC) -c $< 
 
 # MODULES and SUBMODULES
 %.mod : %.o
@@ -46,7 +48,7 @@ $(APP): $(OBJ)
 # NOTE: this rule makes sure that errors other than "module not found" are shown
 $(DEPS) : %.d : %.F90
 	@ $(ECHO) -n "===== generating $@... "
-	$(V) gfortran -c $< -M -MF $@ -fsyntax-only 2> $*.error \
+	$(V) $(FC) -c $< -M -MF $@ -fsyntax-only 2> $*.error \
 	 || { grep "$(MOD_NOT_FOUND_ERROR_STRING)" $*.error &> /dev/null \
 	      || { echo "failed"; cat $*.error; rm $*.error; false; } \
 	      && { echo "failed"; rm $*.error; false; } \

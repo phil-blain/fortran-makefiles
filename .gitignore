@@ -3,3 +3,5 @@
 myprogram
 deps.mk
 *.anc
+*.d
+BEGINCOMPILE
