@@ -1,0 +1,3 @@
+Makefile.* linguist-language=Makefile
+*.dmod linguist-language=Makefile
+*.dmod2 linguist-language=Makefile
