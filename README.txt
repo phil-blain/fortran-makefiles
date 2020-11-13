@@ -1,4 +1,14 @@
+# Makefiles for Fortran
 
+## Rouler les tests
+```bash
+# pour tous les Makefiles sauf Makefile.2pass-vpath
+make -f Makefile.<méthode> test
+# pour Makefile.2pass-vpath:
+mkdir build && cd build && make -f ../Makefile.2pass-vpath test
+```
+
+## Baratin
 Il y a plusieurs choses qu'on veut faire:
 A. génération automatique des dépendances
 B. Utiliser les fonctionnalités de génération des dépendances du compilateur si possible
